@@ -95,24 +95,22 @@
     © 2025 Millionaire Tracker — Tous droits réservés.
   </footer>
 
-
-
-   <!-- ✅ LOGIN / REGISTER MODALS -->
+  <!-- ✅ LOGIN / REGISTER MODALS -->
   <!-- Background overlay -->
   <div id="modal-overlay" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
     
-    <!-- LOGIN FORM -->
-    <div id="login-modal" class="hidden bg-neutral-900 p-8 rounded-2xl shadow-xl w-96 relative border border-neutral-800">
-      <button id="close-login" class="absolute top-3 right-3 text-gray-400 hover:text-white">✕</button>
-      <h2 class="text-2xl font-semibold text-yellow-400 mb-6 text-center">Connexion</h2>
-      <form class="space-y-4">
+    <!-- LOGIN FORM (par username) -->
+    <div id="login-modal" class="hidden bg-neutral-900 p-8 rounded-2xl shadow-xl w-96 relative border border-neutral-800" role="dialog" aria-modal="true" aria-labelledby="login-title">
+      <button id="close-login" class="absolute top-3 right-3 text-gray-400 hover:text-white" aria-label="Fermer la fenêtre">✕</button>
+      <h2 id="login-title" class="text-2xl font-semibold text-yellow-400 mb-6 text-center">Connexion</h2>
+      <form id="login-form" class="space-y-4" autocomplete="on" onsubmit="handleLogin(event)">
         <div>
-          <label class="block text-sm text-gray-300 mb-1">Adresse e-mail</label>
-          <input type="email" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="exemple@mail.com" required>
+          <label for="login-username" class="block text-sm text-gray-300 mb-1">Nom d'utilisateur</label>
+          <input id="login-username" name="username" type="text" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="votre.username" required aria-required="true" autocomplete="username">
         </div>
         <div>
-          <label class="block text-sm text-gray-300 mb-1">Mot de passe</label>
-          <input type="password" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="••••••••" required>
+          <label for="login-password" class="block text-sm text-gray-300 mb-1">Mot de passe</label>
+          <input id="login-password" name="password" type="password" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="••••••••" required aria-required="true" autocomplete="current-password">
         </div>
         <button type="submit" class="w-full bg-yellow-400 text-gray-900 font-semibold py-2 rounded-lg hover:bg-yellow-500 transition">Se connecter</button>
       </form>
@@ -123,21 +121,25 @@
     </div>
 
     <!-- REGISTER FORM -->
-    <div id="register-modal" class="hidden bg-neutral-900 p-8 rounded-2xl shadow-xl w-96 relative border border-neutral-800">
-      <button id="close-register" class="absolute top-3 right-3 text-gray-400 hover:text-white">✕</button>
-      <h2 class="text-2xl font-semibold text-yellow-400 mb-6 text-center">Créer un compte</h2>
-      <form class="space-y-4">
+    <div id="register-modal" class="hidden bg-neutral-900 p-8 rounded-2xl shadow-xl w-96 relative border border-neutral-800" role="dialog" aria-modal="true" aria-labelledby="register-title">
+      <button id="close-register" class="absolute top-3 right-3 text-gray-400 hover:text-white" aria-label="Fermer la fenêtre">✕</button>
+      <h2 id="register-title" class="text-2xl font-semibold text-yellow-400 mb-6 text-center">Créer un compte</h2>
+      <form id="register-form" class="space-y-4" autocomplete="on" onsubmit="handleRegister(event)">
         <div>
-          <label class="block text-sm text-gray-300 mb-1">Nom complet</label>
-          <input type="text" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="John Doe" required>
+          <label for="reg-username" class="block text-sm text-gray-300 mb-1">Username</label>
+          <input id="reg-username" name="username" type="text" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="votre.username" required aria-required="true" autocomplete="username">
         </div>
         <div>
-          <label class="block text-sm text-gray-300 mb-1">Adresse e-mail</label>
-          <input type="email" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="exemple@mail.com" required>
+          <label for="reg-firstname" class="block text-sm text-gray-300 mb-1">First Name (Prénom)</label>
+          <input id="reg-firstname" name="firstName" type="text" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Jean" required aria-required="true" autocomplete="given-name">
         </div>
         <div>
-          <label class="block text-sm text-gray-300 mb-1">Mot de passe</label>
-          <input type="password" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="••••••••" required>
+          <label for="reg-secondname" class="block text-sm text-gray-300 mb-1">Second Name (Nom)</label>
+          <input id="reg-secondname" name="secondName" type="text" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Dupont" required aria-required="true" autocomplete="family-name">
+        </div>
+        <div>
+          <label for="reg-password" class="block text-sm text-gray-300 mb-1">Mot de passe</label>
+          <input id="reg-password" name="password" type="password" minlength="8" class="w-full px-4 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Au moins 8 caractères" required aria-required="true" autocomplete="new-password">
         </div>
         <button type="submit" class="w-full bg-yellow-400 text-gray-900 font-semibold py-2 rounded-lg hover:bg-yellow-500 transition">Créer un compte</button>
       </form>
@@ -149,6 +151,7 @@
   </div>
 
   <script>
+    // Elements
     const overlay = document.getElementById('modal-overlay');
     const loginModal = document.getElementById('login-modal');
     const registerModal = document.getElementById('register-modal');
@@ -165,8 +168,21 @@
       loginModal.classList.add('hidden');
       registerModal.classList.add('hidden');
       modal.classList.remove('hidden');
+
+      // ❌ Vider tous les inputs
+      const inputs = modal.querySelectorAll('input');
+      inputs.forEach(input => input.value = '');
+
+      // trigger animation
+      modal.classList.remove('animate-fadeIn');
+      void modal.offsetWidth;
       modal.classList.add('animate-fadeIn');
+
+      // focus le premier input pour accessibilité
+      const firstInput = modal.querySelector('input');
+      if (firstInput) firstInput.focus();
     }
+
 
     function closeModal() {
       overlay.classList.add('hidden');
@@ -178,21 +194,61 @@
     openRegister.onclick = () => showModal(registerModal);
     closeLogin.onclick = closeModal;
     closeRegister.onclick = closeModal;
-    overlay.onclick = (e) => { if (e.target === overlay) closeModal(); }
+
+    // Close when clicking overlay background (but not when clicking inside modal)
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
 
     switchToRegister.onclick = () => showModal(registerModal);
     switchToLogin.onclick = () => showModal(loginModal);
+
+    // Example handlers: ici on évite l'envoi réel pour faciliter les tests front-end.
+    // Remplace handleLogin / handleRegister par intégration API côté serveur.
+    function handleLogin(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const username = form.querySelector('[name="username"]').value.trim();
+      const password = form.querySelector('[name="password"]').value;
+      // TODO: remplacer par appel API réel
+      console.log('Tentative de connexion', { username, password });
+      // Pour l'instant, on ferme et affiche un message console — à remplacer.
+      alert(`Connexion pour "${username}" (simulation).`);
+      closeModal();
+    }
+
+    function handleRegister(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const username = form.querySelector('[name="username"]').value.trim();
+      const firstName = form.querySelector('[name="firstName"]').value.trim();
+      const secondName = form.querySelector('[name="secondName"]').value.trim();
+      const password = form.querySelector('[name="password"]').value;
+      // TODO: remplacer par appel API réel
+      console.log('Nouvelle inscription', { username, firstName, secondName, password });
+      alert(`Compte créé pour "${username}" (simulation). Bienvenue ${firstName} !`);
+      closeModal();
+    }
+
+    // Accessibility: keyboard ESC to close modals
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (!overlay.classList.contains('hidden')) closeModal();
+      }
+    });
   </script>
 
   <style>
     @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
+      from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
     .animate-fadeIn {
-      animation: fadeIn 0.3s ease-out forwards;
+      animation: fadeIn 0.25s ease-out forwards;
     }
   </style>
+
+  <!-- keep external script.js if you use it for other features -->
   <script src="script.js"></script>
 </body>
 </html>
