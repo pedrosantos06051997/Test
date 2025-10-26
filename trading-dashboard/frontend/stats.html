@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Millionaire Tracker | Statistiques</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #0B0B0B;
+      color: #f5f5f5;
+    }
+    .sidebar {
+      background: #111;
+      border-right: 1px solid #222;
+      transition: width 0.3s;
+      overflow: hidden;
+    }
+    .sidebar a .label {
+      transition: opacity 0.3s;
+    }
+    .sidebar a { justify-content: start; }
+    .sidebar.collapsed a { justify-content: center; }
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      cursor: pointer;
+      width: 30px;
+      height: 24px;
+    }
+    .hamburger span {
+      display: block;
+      height: 3px;
+      background-color: #FACC15;
+      margin: 4px 0;
+      transition: 0.3s;
+      border-radius: 2px;
+    }
+    .hamburger.open span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex">
+
+  <!-- NAVBAR GAUCHE -->
+  <aside id="sidebar" class="sidebar w-64 p-6 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-3 mb-10">
+        <div class="bg-yellow-400 text-gray-900 w-10 h-10 flex items-center justify-center rounded-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 17l6-6 4 4 8-8" />
+          </svg>
+        </div>
+        <h2 id="sidebar-title" class="text-xl font-semibold text-yellow-400">Millionaire</h2>
+      </div>
+
+      <nav class="space-y-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition">
+          <span class="icon">🏠</span>
+          <span class="label">Tableau de bord</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition">
+          <span class="icon">📊</span>
+          <span class="label">Statistiques</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition">
+          <span class="icon">💼</span>
+          <span class="label">Portefeuille</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition">
+          <span class="icon">⚙️</span>
+          <span class="label">Paramètres</span>
+        </a>
+      </nav>
+    </div>
+
+    <footer class="text-gray-500 text-sm border-t border-neutral-800 pt-4">
+      © 2025 Millionaire Tracker
+    </footer>
+  </aside>
+
+  <!-- CONTENU PRINCIPAL -->
+  <div class="flex-1 flex flex-col">
+
+    <!-- HEADER -->
+    <header class="flex justify-between items-center px-4 md:px-8 py-4 border-b border-neutral-800 bg-neutral-950 shadow-md">
+      <div id="sidebar-toggle" class="hamburger cursor-pointer">
+        <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </div>
+
+      <h1 class="text-xl font-semibold text-yellow-400">Statistiques</h1>
+
+      <div class="flex items-center gap-8">
+        <div id="datetime" class="text-gray-300 font-mono"></div>
+        <div id="user-info" class="flex items-center gap-3 bg-neutral-800 px-4 py-2 rounded-lg">
+          <span id="user-name" class="font-semibold text-yellow-400"></span>
+          <button id="logout-btn" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-3 py-1 rounded-md transition">Déconnexion</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENU DES STATISTIQUES -->
+    <main class="flex-1 p-4 md:p-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-neutral-900 p-6 rounded-2xl shadow-md border border-neutral-800">
+          <h3 class="text-yellow-400 font-semibold mb-2">Capital de départ</h3>
+          <p class="text-2xl font-bold">10 000 €</p>
+        </div>
+        <div class="bg-neutral-900 p-6 rounded-2xl shadow-md border border-neutral-800">
+          <h3 class="text-yellow-400 font-semibold mb-2">Capital actuel</h3>
+          <p class="text-2xl font-bold text-green-400">30 000 €</p>
+          <p class="text-green-400 font-semibold">+200%</p>
+        </div>
+        <div class="bg-neutral-900 p-6 rounded-2xl shadow-md border border-neutral-800">
+          <h3 class="text-yellow-400 font-semibold mb-2">Gain quotidien</h3>
+          <p class="text-2xl font-bold text-green-400">100 €</p>
+          <p class="text-green-400 font-semibold">+1%</p>
+        </div>
+      </div>
+
+      <!-- Ici tu pourras ajouter tes graphiques ou tableaux statistiques -->
+      <div class="mt-8 bg-neutral-900 p-6 rounded-2xl shadow-md border border-neutral-800">
+        <h3 class="text-yellow-400 font-semibold mb-4">Graphiques et statistiques</h3>
+        <p class="text-gray-300">Contenu à compléter...</p>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Session utilisateur
+    const SESSION_KEY = 'mt_currentUser';
+    const USERS_KEY = 'mt_users';
+
+    function loadUsers() {
+      try {
+        const raw = localStorage.getItem(USERS_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch(e) { return {}; }
+    }
+
+    function getCurrentUser() {
+      const username = sessionStorage.getItem(SESSION_KEY);
+      if (!username) return null;
+      const users = loadUsers();
+      return users[username] || null;
+    }
+
+    function updateUserNameUI() {
+      const user = getCurrentUser();
+      const userNameSpan = document.getElementById('user-name');
+      if(user){
+        userNameSpan.textContent = `${user.firstName} ${user.secondName}`;
+      } else {
+        userNameSpan.textContent = 'Invité';
+      }
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      sessionStorage.removeItem(SESSION_KEY);
+      window.location.href = 'index.html';
+    });
+
+    updateUserNameUI();
+
+    function updateDateTime() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const date = now.toLocaleDateString('fr-FR', options);
+      const time = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('datetime').textContent = `${date} — ${time}`;
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const labels = document.querySelectorAll('.label');
+    const sidebarTitle = document.getElementById('sidebar-title');
+    let sidebarOpen = true;
+    function toggleSidebar() {
+      sidebarOpen = !sidebarOpen;
+      toggleBtn.classList.toggle('open');
+      sidebar.style.width = sidebarOpen ? '16rem' : '4rem';
+      labels.forEach(label => label.style.display = sidebarOpen ? 'inline' : 'none');
+      sidebarTitle.style.display = sidebarOpen ? 'inline' : 'none';
+      sidebar.classList.toggle('collapsed', !sidebarOpen);
+    }
+    toggleBtn.addEventListener('click', toggleSidebar);
+  </script>
+</body>
+</html>

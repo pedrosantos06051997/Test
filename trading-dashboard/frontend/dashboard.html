@@ -1,20 +1,407 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard Page</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Poppins', sans-serif; } </style>
-</head>
-<body>
-    <h1 class="text-5xl font-bold underline">
-      Hello world from Dashboard!
-    </h1>
-    <script src="script.js"></script>
-</body>
-<footer>
+  <meta charset="UTF-8">
+  <title>Millionaire Tracker | Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #0B0B0B;
+      color: #f5f5f5;
+    }
 
-</footer>
+    .sidebar {
+      background: #111;
+      border-right: 1px solid #222;
+      transition: width 0.3s;
+      overflow: hidden;
+    }
+    .sidebar a .label {
+      transition: opacity 0.3s;
+    }
+    .sidebar a {
+      justify-content: start;
+    }
+    .sidebar.collapsed a {
+      justify-content: center;
+    }
+
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      cursor: pointer;
+      width: 30px;
+      height: 24px;
+    }
+    .hamburger span {
+      display: block;
+      height: 3px;
+      background-color: #FACC15;
+      margin: 4px 0;
+      transition: 0.3s;
+      border-radius: 2px;
+    }
+    .hamburger.open span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger.open span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.open span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex">
+
+  <!-- NAVBAR GAUCHE -->
+  <aside id="sidebar" class="sidebar w-64 p-6 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-3 mb-10">
+        <div class="bg-yellow-400 text-gray-900 w-10 h-10 flex items-center justify-center rounded-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 17l6-6 4 4 8-8" />
+          </svg>
+        </div>
+        <h2 id="sidebar-title" class="text-xl font-semibold text-yellow-400">Millionaire</h2>
+      </div>
+
+      <nav class="space-y-3">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition">
+          <span class="icon">🏠</span>
+          <span class="label">Tableau de bord</span>
+        </a>
+        <a href="stats.html" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition">
+          <span class="icon">📊</span>
+          <span class="label">Statistiques</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition">
+          <span class="icon">💼</span>
+          <span class="label">Portefeuille</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-800 transition">
+          <span class="icon">⚙️</span>
+          <span class="label">Paramètres</span>
+        </a>
+      </nav>
+    </div>
+
+    <footer class="text-gray-500 text-sm border-t border-neutral-800 pt-4">
+      © 2025 Millionaire Tracker
+    </footer>
+  </aside>
+
+  <!-- CONTENU PRINCIPAL -->
+  <div class="flex-1 flex flex-col">
+
+    <!-- HEADER -->
+    <header class="flex justify-between items-center px-4 md:px-8 py-4 border-b border-neutral-800 bg-neutral-950 shadow-md">
+      <div id="sidebar-toggle" class="hamburger cursor-pointer">
+        <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </div>
+
+      <h1 class="text-xl font-semibold text-yellow-400">Tableau de bord</h1>
+
+      <div class="flex items-center gap-8">
+        <div id="datetime" class="text-gray-300 font-mono"></div>
+        <div id="user-info" class="flex items-center gap-3 bg-neutral-800 px-4 py-2 rounded-lg">
+          <span id="user-name" class="font-semibold text-yellow-400"></span>
+          <button id="logout-btn" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-3 py-1 rounded-md transition">Déconnexion</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENU DU DASHBOARD -->
+    <main class="flex-1 p-4 md:p-8">
+      <div class="flex justify-between mb-4 items-center">
+        <div class="bg-neutral-900 p-4 rounded-2xl shadow-md border border-neutral-800 text-center min-w-[140px]">
+          <h4 class="text-yellow-400 font-semibold text-sm">Actual Lotsize</h4>
+          <p class="text-lg font-bold text-green-400">0.01</p>
+        </div>
+
+        <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2">
+          <span class="text-xl font-bold">+</span> Add Trades
+        </button>
+      </div>
+
+      <!-- Conteneur principal -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        
+        <!-- Colonne gauche : cartes + tableau -->
+        <div class="lg:col-span-3 flex flex-col gap-6">
+          <!-- Cartes -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-neutral-900 p-6 rounded-2xl shadow-md border border-neutral-800">
+              <h3 class="text-yellow-400 font-semibold mb-2">Capital de départ</h3>
+              <p class="text-2xl font-bold">10 000 €</p>
+            </div>
+            <div class="bg-neutral-900 p-6 rounded-2xl shadow-md border border-neutral-800">
+              <h3 class="text-yellow-400 font-semibold mb-2">Capital actuel</h3>
+              <p class="text-2xl font-bold text-green-400">30 000 €</p>
+              <p class="text-green-400 font-semibold">+200%</p>
+            </div>
+            <div class="bg-neutral-900 p-6 rounded-2xl shadow-md border border-neutral-800">
+              <h3 class="text-yellow-400 font-semibold mb-2">Gain quotidien</h3>
+              <p class="text-2xl font-bold text-green-400">100 €</p>
+              <p class="text-green-400 font-semibold">+1%</p>
+            </div>
+          </div>
+
+          <!-- Journal des trades -->
+          <div class="bg-neutral-900 p-6 rounded-2xl shadow-md border border-neutral-800">
+            <h3 class="text-yellow-400 font-semibold mb-4">Journal des Trades</h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-sm text-gray-300">
+                <thead class="bg-neutral-800 text-yellow-400 uppercase text-xs">
+                  <tr>
+                    <th class="px-4 py-2 text-left">Date & Time</th>
+                    <th class="px-4 py-2 text-left">Pair</th>
+                    <th class="px-4 py-2 text-left">BUY/SELL</th>
+                    <th class="px-4 py-2 text-left">Lot Size</th>
+                    <th class="px-4 py-2 text-left">RISK (€)</th>
+                    <th class="px-4 py-2 text-left">REWARD (€)</th>
+                    <th class="px-4 py-2 text-left">REWARD/RISK</th>
+                    <th class="px-4 py-2 text-left">Confirmations</th>
+                    <th class="px-4 py-2 text-left">Images</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-t border-neutral-800 hover:bg-neutral-800/50 transition">
+                    <td class="px-4 py-2">26 Oct 2025 — 09:30</td>
+                    <td class="px-4 py-2">EUR/USD</td>
+                    <td class="px-4 py-2 text-green-400 font-semibold">BUY</td>
+                    <td class="px-4 py-2">1.00</td>
+                    <td class="px-4 py-2 text-red-400">-50</td>
+                    <td class="px-4 py-2 text-green-400">+150</td>
+                    <td class="px-4 py-2 text-yellow-400 font-semibold">3.0</td>
+                    <td class="px-4 py-2">EMA Cross, RSI Divergence</td>
+                    <td class="px-4 py-2"><a href="#" class="text-blue-400 hover:underline">Voir</a></td>
+                  </tr>
+                  <tr class="border-t border-neutral-800 hover:bg-neutral-800/50 transition">
+                    <td class="px-4 py-2">25 Oct 2025 — 15:10</td>
+                    <td class="px-4 py-2">BTC/USD</td>
+                    <td class="px-4 py-2 text-red-400 font-semibold">SELL</td>
+                    <td class="px-4 py-2">0.5</td>
+                    <td class="px-4 py-2 text-red-400">-100</td>
+                    <td class="px-4 py-2 text-green-400">+250</td>
+                    <td class="px-4 py-2 text-yellow-400 font-semibold">2.5</td>
+                    <td class="px-4 py-2">Trendline Break, MACD</td>
+                    <td class="px-4 py-2"><a href="#" class="text-blue-400 hover:underline">Voir</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Colonne droite : calendrier -->
+        <div class="lg:col-span-1">
+          <div class="bg-neutral-900 p-6 rounded-2xl shadow-md border border-neutral-800">
+            <h3 class="text-yellow-400 font-semibold mb-4">Calendrier</h3>
+            <div class="bg-neutral-800 p-3 rounded-xl">
+              <div class="flex justify-between items-center mb-3">
+                <button id="prevMonth" class="px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600 transition">◀</button>
+                <h2 id="monthYear" class="text-yellow-400 font-semibold text-lg"></h2>
+                <button id="nextMonth" class="px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600 transition">▶</button>
+              </div>
+
+              <div class="grid grid-cols-7 gap-1 text-center font-semibold text-gray-300 uppercase text-xs">
+                <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+              </div>
+
+              <div id="calendarDays" class="grid grid-cols-7 gap-2 mt-2 text-center text-sm"></div>
+            </div>
+          </div>
+
+          <!-- Widget Calculateur de Lots sous le calendrier -->
+          <div class="bg-neutral-900 p-6 rounded-2xl shadow-md border border-neutral-800 mt-6">
+            <h3 class="text-yellow-400 font-semibold mb-4">Calculateur de Lots</h3>
+            
+            <div class="grid grid-cols-1 gap-4">
+              <!-- Currency Pair -->
+              <div>
+                <label class="block text-gray-300 text-sm mb-1" for="currencyPair">Currency Pair</label>
+                <select id="currencyPair" class="w-full bg-neutral-800 text-gray-300 p-2 rounded-lg border border-neutral-700">
+                  <option value="EURUSD">EURUSD</option>
+                  <option value="GBPUSD">GBPUSD</option>
+                  <option value="USDJPY">USDJPY</option>
+                  <option value="BTCUSD">BTCUSD</option>
+                </select>
+              </div>
+
+              <!-- Account Currency -->
+              <div>
+                <label class="block text-gray-300 text-sm mb-1" for="accountCurrency">Account Currency</label>
+                <select id="accountCurrency" class="w-full bg-neutral-800 text-gray-300 p-2 rounded-lg border border-neutral-700">
+                  <option value="EUR">EUR</option>
+                  <option value="USD">USD</option>
+                </select>
+              </div>
+
+              <!-- Account Size -->
+              <div>
+                <label class="block text-gray-300 text-sm mb-1" for="accountSize">Account Size</label>
+                <input type="number" id="accountSize" value="30000" class="w-full bg-neutral-800 text-gray-300 p-2 rounded-lg border border-neutral-700" readonly>
+              </div>
+
+              <!-- Risk Ratio % -->
+              <div>
+                <label class="block text-gray-300 text-sm mb-1" for="riskRatio">Risk Ratio %</label>
+                <input type="number" id="riskRatio" value="1" class="w-full bg-neutral-800 text-gray-300 p-2 rounded-lg border border-neutral-700">
+              </div>
+
+              <!-- StopLoss -->
+              <div>
+                <label class="block text-gray-300 text-sm mb-1" for="stopLoss">StopLoss (Pips)</label>
+                <input type="number" id="stopLoss" value="20" class="w-full bg-neutral-800 text-gray-300 p-2 rounded-lg border border-neutral-700">
+              </div>
+
+              <!-- Trade Size -->
+              <div>
+                <label class="block text-gray-300 text-sm mb-1" for="tradeSize">Trade Size</label>
+                <input type="number" id="tradeSize" value="1" class="w-full bg-neutral-800 text-gray-300 p-2 rounded-lg border border-neutral-700" readonly>
+              </div>
+
+              <!-- Bouton Calculate -->
+              <div class="flex justify-end mt-2">
+                <button id="calculateLot" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-4 py-2 rounded-lg transition">Calculate</button>
+              </div>
+
+              <!-- Lotsize affiché -->
+              <div class="text-center mt-4">
+                <span class="text-gray-300">Lot Size:</span>
+                <span id="calculatedLot" class="text-green-400 font-bold text-lg">0.5</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Logged User
+    const SESSION_KEY = 'mt_currentUser'; // même clé que celle utilisée lors de la connexion
+    const USERS_KEY = 'mt_users';         // même clé que pour stocker les utilisateurs
+
+    function loadUsers() {
+      try {
+        const raw = localStorage.getItem(USERS_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch(e) {
+        console.error("Erreur parse users:", e);
+        return {};
+      }
+    }
+
+    function getCurrentUser() {
+      const username = sessionStorage.getItem(SESSION_KEY);
+      if (!username) return null;
+      const users = loadUsers();
+      return users[username] ? users[username] : null;
+    }
+
+    function updateUserNameUI() {
+      const user = getCurrentUser();
+      const userNameSpan = document.getElementById('user-name');
+      if(user){
+        userNameSpan.textContent = `${user.firstName} ${user.secondName}`;
+      } else {
+        userNameSpan.textContent = 'Invité';
+      }
+    }
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      sessionStorage.removeItem(SESSION_KEY);
+      updateUserNameUI();
+      // Redirection vers index.html
+      window.location.href = 'index.html';
+    });
+
+    // Initialisation
+    updateUserNameUI();
+
+    // Horloge dynamique
+    function updateDateTime() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const date = now.toLocaleDateString('fr-FR', options);
+      const time = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('datetime').textContent = `${date} — ${time}`;
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const labels = document.querySelectorAll('.label');
+    const sidebarTitle = document.getElementById('sidebar-title');
+    let sidebarOpen = true;
+    function toggleSidebar() {
+      sidebarOpen = !sidebarOpen;
+      toggleBtn.classList.toggle('open');
+      sidebar.style.width = sidebarOpen ? '16rem' : '4rem';
+      labels.forEach(label => label.style.display = sidebarOpen ? 'inline' : 'none');
+      sidebarTitle.style.display = sidebarOpen ? 'inline' : 'none';
+      sidebar.classList.toggle('collapsed', !sidebarOpen);
+    }
+    toggleBtn.addEventListener('click', toggleSidebar);
+
+    // Calendrier moderne
+    const calendarDays = document.getElementById("calendarDays");
+    const monthYear = document.getElementById("monthYear");
+    const prevBtn = document.getElementById("prevMonth");
+    const nextBtn = document.getElementById("nextMonth");
+    let today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
+    const months = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+    const trades = {
+      "2025-10-01": { total: 3, result: "win", amount: 120 },
+      "2025-10-02": { total: 2, result: "loss", amount: -50 },
+      "2025-10-03": { total: 0, result: "no-trade", amount: 0 },
+      "2025-10-04": { total: 5, result: "break-even", amount: 0 },
+    };
+    const colors = {
+      "win": "bg-green-500 text-white",
+      "loss": "bg-red-500 text-white",
+      "break-even": "bg-gray-500 text-white",
+      "no-trade": "bg-blue-500 text-white"
+    };
+    function renderCalendar(month, year) {
+      calendarDays.innerHTML = "";
+      monthYear.textContent = `${months[month]} ${year}`;
+      let firstDay = new Date(year, month, 1).getDay();
+      firstDay = firstDay === 0 ? 7 : firstDay;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (let i = 1; i < firstDay; i++) calendarDays.appendChild(document.createElement("div"));
+      for (let day = 1; day <= daysInMonth; day++) {
+        const key = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        if (!trades[key]) trades[key] = { total: 0, result: "no-trade", amount: 0 };
+        const t = trades[key];
+        const div = document.createElement("div");
+        div.className = `p-1 rounded-lg shadow ${colors[t.result]} cursor-pointer hover:scale-105 transition-transform flex flex-col justify-between`;
+        div.innerHTML = `
+          <div class="font-bold">${day}</div>
+          <div class="text-xs">${t.total > 0 ? `${t.total} trade(s)` : "—"}</div>
+          <div class="text-xs font-semibold ${t.amount>0?"text-green-900":t.amount<0?"text-red-900":"text-gray-900"}">${t.amount!==0?(t.amount>0?"+":"")+t.amount+" €":""}</div>
+        `;
+        calendarDays.appendChild(div);
+      }
+    }
+    prevBtn.addEventListener("click", () => { currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; } renderCalendar(currentMonth, currentYear); });
+    nextBtn.addEventListener("click", () => { currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; } renderCalendar(currentMonth, currentYear); });
+    renderCalendar(currentMonth, currentYear);
+  </script>
+</body>
 </html>

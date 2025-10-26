@@ -203,31 +203,131 @@
     switchToRegister.onclick = () => showModal(registerModal);
     switchToLogin.onclick = () => showModal(loginModal);
 
-    // Example handlers: ici on évite l'envoi réel pour faciliter les tests front-end.
-    // Remplace handleLogin / handleRegister par intégration API côté serveur.
-    function handleLogin(event) {
-      event.preventDefault();
-      const form = event.currentTarget;
-      const username = form.querySelector('[name="username"]').value.trim();
-      const password = form.querySelector('[name="password"]').value;
-      // TODO: remplacer par appel API réel
-      console.log('Tentative de connexion', { username, password });
-      // Pour l'instant, on ferme et affiche un message console — à remplacer.
-      alert(`Connexion pour "${username}" (simulation).`);
-      closeModal();
+    // -------------------------
+    // STOCKAGE LOCAL (localStorage) POUR LES USERS
+    // -------------------------
+    // Clés
+    const USERS_KEY = 'mt_users';         // objet contenant les utilisateurs
+    const SESSION_KEY = 'mt_currentUser'; // username de l'utilisateur connecté (sessionStorage)
+
+    function loadUsers() {
+      try {
+        const raw = localStorage.getItem(USERS_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        console.error('Erreur parse users:', e);
+        return {};
+      }
     }
 
-    function handleRegister(event) {
+    function saveUsers(usersObj) {
+      localStorage.setItem(USERS_KEY, JSON.stringify(usersObj));
+    }
+
+    // Hash SHA-256 via Web Crypto API -> hex string
+    async function hashPassword(password) {
+      const enc = new TextEncoder();
+      const buf = await crypto.subtle.digest('SHA-256', enc.encode(password));
+      const hashArray = Array.from(new Uint8Array(buf));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // --- Remplacement: handleRegister (enregistre en localStorage) ---
+    async function handleRegister(event) {
       event.preventDefault();
       const form = event.currentTarget;
-      const username = form.querySelector('[name="username"]').value.trim();
+      const usernameRaw = form.querySelector('[name="username"]').value.trim();
+      const username = usernameRaw.toLowerCase();
       const firstName = form.querySelector('[name="firstName"]').value.trim();
       const secondName = form.querySelector('[name="secondName"]').value.trim();
       const password = form.querySelector('[name="password"]').value;
-      // TODO: remplacer par appel API réel
-      console.log('Nouvelle inscription', { username, firstName, secondName, password });
-      alert(`Compte créé pour "${username}" (simulation). Bienvenue ${firstName} !`);
-      closeModal();
+
+      if (!username || !password) {
+        alert('Remplissez le username et le mot de passe.');
+        return;
+      }
+
+      // Chargement users existants
+      const users = loadUsers();
+
+      if (users[username]) {
+        alert('Ce nom d’utilisateur existe déjà. Choisissez-en un autre.');
+        return;
+      }
+
+      try {
+        const pwHash = await hashPassword(password);
+
+        // Crée l'objet user (n'affiche pas le mot de passe)
+        users[username] = {
+          firstName,
+          secondName,
+          passwordHash: pwHash,
+          createdAt: new Date().toISOString()
+        };
+
+        saveUsers(users);
+
+        // Ouvrir la session immédiatement (facultatif mais pratique pour démo)
+        sessionStorage.setItem(SESSION_KEY, username);
+
+        alert(`Compte créé pour "${username}" — Bienvenue ${firstName} !`);
+        closeModal(); // on ferme après succès
+      } catch (err) {
+        console.error('Erreur lors de l’enregistrement :', err);
+        alert('Impossible d’enregistrer (erreur interne).');
+      }
+    }
+
+    // --- Remplacement: handleLogin (vérifie localStorage) ---
+    async function handleLogin(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const usernameRaw = form.querySelector('[name="username"]').value.trim();
+      const username = usernameRaw.toLowerCase();
+      const password = form.querySelector('[name="password"]').value;
+
+      if (!username || !password) {
+        alert('Remplissez le nom d’utilisateur et le mot de passe.');
+        return;
+      }
+
+      const users = loadUsers();
+      const user = users[username];
+      if (!user) {
+        alert('Utilisateur introuvable.');
+        return;
+      }
+
+      try {
+        const pwHash = await hashPassword(password);
+        if (pwHash === user.passwordHash) {
+          // Auth OK
+          sessionStorage.setItem(SESSION_KEY, username);
+          alert(`Connecté en tant que ${user.firstName} (${username}).`);
+          window.location.href = "dashboard.html";
+          closeModal();
+          // ici tu peux rediriger ou afficher l'UI authentifiée
+        } else {
+          alert('Mot de passe incorrect.');
+        }
+      } catch (err) {
+        console.error('Erreur login :', err);
+        alert('Erreur lors de la connexion.');
+      }
+    }
+
+    // --- Petit utilitaire pour logout / obtenir user courant ---
+    function getCurrentUser() {
+      const username = sessionStorage.getItem(SESSION_KEY);
+      if (!username) return null;
+      const users = loadUsers();
+      return users[username] ? { username, ...users[username] } : null;
+    }
+
+    function logout() {
+      sessionStorage.removeItem(SESSION_KEY);
+      alert('Déconnecté.');
     }
 
     // Accessibility: keyboard ESC to close modals
