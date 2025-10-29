@@ -5,6 +5,7 @@
   <title>Millionaire Tracker | Accueil</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -151,11 +152,15 @@
   </div>
 
   <script>
-    // Elements
+    // === SUPABASE INIT ===
+    const SUPABASE_URL = "https://xsfdmedxxdwchbqaihoj.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzZmRtZWR4eGR3Y2hicWFpaG9qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3NjMzODAsImV4cCI6MjA3NzMzOTM4MH0.hP-f20P55oFatthBErT8kWrr1DXjeYDTYUYKVqstNjg";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Elements modaux
     const overlay = document.getElementById('modal-overlay');
     const loginModal = document.getElementById('login-modal');
     const registerModal = document.getElementById('register-modal');
-
     const openLogin = document.getElementById('open-login');
     const openRegister = document.getElementById('open-register');
     const closeLogin = document.getElementById('close-login');
@@ -168,21 +173,13 @@
       loginModal.classList.add('hidden');
       registerModal.classList.add('hidden');
       modal.classList.remove('hidden');
-
-      // ❌ Vider tous les inputs
-      const inputs = modal.querySelectorAll('input');
-      inputs.forEach(input => input.value = '');
-
-      // trigger animation
+      modal.querySelectorAll('input').forEach(input => input.value = '');
       modal.classList.remove('animate-fadeIn');
       void modal.offsetWidth;
       modal.classList.add('animate-fadeIn');
-
-      // focus le premier input pour accessibilité
       const firstInput = modal.querySelector('input');
       if (firstInput) firstInput.focus();
     }
-
 
     function closeModal() {
       overlay.classList.add('hidden');
@@ -194,37 +191,13 @@
     openRegister.onclick = () => showModal(registerModal);
     closeLogin.onclick = closeModal;
     closeRegister.onclick = closeModal;
-
-    // Close when clicking overlay background (but not when clicking inside modal)
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) closeModal();
-    });
-
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
     switchToRegister.onclick = () => showModal(registerModal);
     switchToLogin.onclick = () => showModal(loginModal);
 
-    // -------------------------
-    // STOCKAGE LOCAL (localStorage) POUR LES USERS
-    // -------------------------
-    // Clés
-    const USERS_KEY = 'mt_users';         // objet contenant les utilisateurs
-    const SESSION_KEY = 'mt_currentUser'; // username de l'utilisateur connecté (sessionStorage)
+    const SESSION_KEY = 'mt_currentUser';
 
-    function loadUsers() {
-      try {
-        const raw = localStorage.getItem(USERS_KEY);
-        return raw ? JSON.parse(raw) : {};
-      } catch (e) {
-        console.error('Erreur parse users:', e);
-        return {};
-      }
-    }
-
-    function saveUsers(usersObj) {
-      localStorage.setItem(USERS_KEY, JSON.stringify(usersObj));
-    }
-
-    // Hash SHA-256 via Web Crypto API -> hex string
+    // Hash SHA-256
     async function hashPassword(password) {
       const enc = new TextEncoder();
       const buf = await crypto.subtle.digest('SHA-256', enc.encode(password));
@@ -232,105 +205,97 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // --- Remplacement: handleRegister (enregistre en localStorage) ---
+    // === FONCTION: Enregistrer l'utilisateur dans Supabase ===
     async function handleRegister(event) {
       event.preventDefault();
       const form = event.currentTarget;
-      const usernameRaw = form.querySelector('[name="username"]').value.trim();
-      const username = usernameRaw.toLowerCase();
+      const username = form.querySelector('[name="username"]').value.trim().toLowerCase();
       const firstName = form.querySelector('[name="firstName"]').value.trim();
       const secondName = form.querySelector('[name="secondName"]').value.trim();
       const password = form.querySelector('[name="password"]').value;
 
       if (!username || !password) {
-        alert('Remplissez le username et le mot de passe.');
+        alert('Remplissez tous les champs.');
         return;
       }
 
-      // Chargement users existants
-      const users = loadUsers();
+      const pwHash = await hashPassword(password);
 
-      if (users[username]) {
-        alert('Ce nom d’utilisateur existe déjà. Choisissez-en un autre.');
+      // Vérifie si l'utilisateur existe déjà
+      const { data: existing } = await supabase
+        .from('users')
+        .select('username')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (existing) {
+        alert('Ce nom d’utilisateur existe déjà.');
         return;
       }
 
-      try {
-        const pwHash = await hashPassword(password);
+      const { error } = await supabase.from('users').insert({
+        username,
+        first_name: firstName,
+        second_name: secondName,
+        password_hash: pwHash
+      });
 
-        // Crée l'objet user (n'affiche pas le mot de passe)
-        users[username] = {
-          firstName,
-          secondName,
-          passwordHash: pwHash,
-          createdAt: new Date().toISOString()
-        };
-
-        saveUsers(users);
-
-        // Ouvrir la session immédiatement (facultatif mais pratique pour démo)
-        sessionStorage.setItem(SESSION_KEY, username);
-
-        alert(`Compte créé pour "${username}" — Bienvenue ${firstName} !`);
-        closeModal(); // on ferme après succès
-      } catch (err) {
-        console.error('Erreur lors de l’enregistrement :', err);
-        alert('Impossible d’enregistrer (erreur interne).');
+      if (error) {
+        console.error(error);
+        alert("Erreur lors de l'inscription : " + error.message);
+        return;
       }
+
+      sessionStorage.setItem(SESSION_KEY, username);
+      alert(`Compte créé pour ${firstName} !`);
+      closeModal();
     }
 
-    // --- Remplacement: handleLogin (vérifie localStorage) ---
+    // === FONCTION: Connexion utilisateur ===
     async function handleLogin(event) {
       event.preventDefault();
       const form = event.currentTarget;
-      const usernameRaw = form.querySelector('[name="username"]').value.trim();
-      const username = usernameRaw.toLowerCase();
+      const username = form.querySelector('[name="username"]').value.trim().toLowerCase();
       const password = form.querySelector('[name="password"]').value;
 
       if (!username || !password) {
-        alert('Remplissez le nom d’utilisateur et le mot de passe.');
+        alert('Veuillez entrer vos identifiants.');
         return;
       }
 
-      const users = loadUsers();
-      const user = users[username];
+      const pwHash = await hashPassword(password);
+
+      const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .eq('password_hash', pwHash)
+        .maybeSingle();
+
+      if (error) {
+        console.error(error);
+        alert("Erreur lors de la connexion : " + error.message);
+        return;
+      }
+
       if (!user) {
-        alert('Utilisateur introuvable.');
+        alert('Identifiants incorrects.');
         return;
       }
 
-      try {
-        const pwHash = await hashPassword(password);
-        if (pwHash === user.passwordHash) {
-          // Auth OK
-          sessionStorage.setItem(SESSION_KEY, username);
-          alert(`Connecté en tant que ${user.firstName} (${username}).`);
-          window.location.href = "dashboard.html";
-          closeModal();
-          // ici tu peux rediriger ou afficher l'UI authentifiée
-        } else {
-          alert('Mot de passe incorrect.');
-        }
-      } catch (err) {
-        console.error('Erreur login :', err);
-        alert('Erreur lors de la connexion.');
-      }
+      sessionStorage.setItem(SESSION_KEY, username);
+      alert(`Bienvenue ${user.first_name} !`);
+      window.location.href = "dashboard.html";
+      closeModal();
     }
 
-    // --- Petit utilitaire pour logout / obtenir user courant ---
-    function getCurrentUser() {
-      const username = sessionStorage.getItem(SESSION_KEY);
-      if (!username) return null;
-      const users = loadUsers();
-      return users[username] ? { username, ...users[username] } : null;
-    }
-
+    // Logout
     function logout() {
       sessionStorage.removeItem(SESSION_KEY);
       alert('Déconnecté.');
     }
 
-    // Accessibility: keyboard ESC to close modals
+    // ESC pour fermer modales
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (!overlay.classList.contains('hidden')) closeModal();
@@ -347,8 +312,5 @@
       animation: fadeIn 0.25s ease-out forwards;
     }
   </style>
-
-  <!-- keep external script.js if you use it for other features -->
-  <script src="script.js"></script>
 </body>
 </html>
